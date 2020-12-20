@@ -113,10 +113,14 @@ export class D3Course extends LitElement {
       bar.append('rect')
       .attr('class', 'bar')
       .attr('x', d => xAxis(d.flavors))
-      .attr('y', d => yAxis(d.sales))
+      .attr('y', d => yAxis(0))
       .attr('width', xAxis.bandwidth())
-      .attr('height', d => height - yAxis(d.sales))
-      .style('fill', 'steelblue');
+      .attr('height', 0)
+      .style('fill', 'steelblue')
+      .transition()
+      .duration(750)
+      .attr('y', d => yAxis(d.sales)) // Final y-position
+      .attr('height', d=> height - yAxis(d.sales));
 
       bar.append('text')
       .text(d => d.sales)
@@ -124,7 +128,11 @@ export class D3Course extends LitElement {
       .attr('y', d => yAxis(d.sales) - 5)
       .attr('font-family', 'sans-serif')
       .attr('font-size', 10)
-      .attr('text-anchor', 'middle');
+      .attr('text-anchor', 'middle')
+      .attr('opacity', 0)
+      .transition()
+      .duration(500)
+      .style('opacity', 1);
   }
 
   render() {
