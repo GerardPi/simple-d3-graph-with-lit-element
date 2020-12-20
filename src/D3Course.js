@@ -117,6 +117,14 @@ export class D3Course extends LitElement {
       .attr('width', xAxis.bandwidth())
       .attr('height', d => height - yAxis(d.sales))
       .style('fill', 'steelblue');
+
+      bar.append('text')
+      .text(d => d.sales)
+      .attr('x', d => xAxis(d.flavors) + (xAxis.bandwidth()/2))
+      .attr('y', d => yAxis(d.sales) - 5)
+      .attr('font-family', 'sans-serif')
+      .attr('font-size', 10)
+      .attr('text-anchor', 'middle');
   }
 
   render() {
