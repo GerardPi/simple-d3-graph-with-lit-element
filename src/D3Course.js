@@ -51,6 +51,20 @@ export class D3Course extends LitElement {
       .app-footer a {
         margin-left: 5px;
       }
+      #slider {
+        text-align: center;
+        margin: 20px;
+        font-family: sans-serif;
+        font-size: 10px;
+        line-height: 2;
+      }
+      #sales-range {
+        vertical-align: bottom;
+      }
+      #drawArea {
+        width: 100%;
+        text-align: center;
+      }
     `;
   }
 
@@ -58,8 +72,15 @@ export class D3Course extends LitElement {
     const margin = { top:30, right: 30, bottom: 150, left: 30};
     const width= 800 - margin.left - margin.right;
     const height= 800 - margin.top - margin.bottom;
-    const targetSelector = '#drawArea';
-    const element = this.shadowRoot.querySelector(targetSelector);
+    const drawAreaSelector = '#drawArea';
+    const salesRangeSelector = '#sales-range';
+
+    const element = this.shadowRoot.querySelector(drawAreaSelector);
+    console.log(`Found drawArea: ${JSON.stringify(element)}`);
+
+    const rangeSlider = this.shadowRoot.querySelector(salesRangeSelector);
+    console.log(`Found slider: ${JSON.stringify(rangeSlider)}`);
+
     const svg = d3.select(element).append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
@@ -73,14 +94,17 @@ export class D3Course extends LitElement {
     const yAxis = d3.scaleLinear()
       .range([height, 0]);
 
+
     d3.csv('sales.csv', (d) => {
       d.sales = +d.sales; // Translate string into integer
       return d;
     })
     .then((csvData) => {
       console.log(csvData);
+      const yAxisMaxValue = d3.max(csvData, data => data.sales);
+
       xAxis.domain(csvData.map(data => data.flavors));
-      yAxis.domain([0, d3.max(csvData, data => data.sales)])
+      yAxis.domain([0, yAxisMaxValue])
       .nice(); // To end the axis with the max number nicely.
 
       svg.append('g')
@@ -98,10 +122,19 @@ export class D3Course extends LitElement {
 
       this.createBars(svg, csvData, xAxis, yAxis, height);
 
+      rangeSlider.min = 0;
+      rangeSlider.max = yAxisMaxValue;
+      rangeSlider.onChange = () => {
+        const filteredData = csvData.filter(d => d.sales >= rangeSlider.value);
+        console.log(`filteredData=${filteredData}`);
+      };
     })
     .catch((error) => {
       throw error;
     });
+  }
+  salesRangeChanged(event) {
+    console.log(`event=${JSON.stringify(event)}`);
   }
   createBars(svg, csvData, xAxis, yAxis, height) {
       const bar = svg.selectAll('.bar-group')
@@ -135,11 +168,18 @@ export class D3Course extends LitElement {
       .style('opacity', 1);
   }
 
+
   render() {
     const rendered = html`
       <main>
         <div class="logo">${openWcLogo}</div>
         <h1>My app</h1>
+        <div id="slider">
+          <span>all</span>
+          <input type="range" id="sales-range" value="0" @change=${this.salesRangeChanged} />
+          <span>best sellers</span>
+        </div>
+
         <div id="drawArea"></div>
 
         <p>Edit <code>src/D3Course.js</code> and save to reload.</p>
