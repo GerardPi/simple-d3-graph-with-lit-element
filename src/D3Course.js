@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
-import { openWcLogo } from './open-wc-logo.js';
 import * as d3 from 'd3';
+import { openWcLogo } from './open-wc-logo.js';
 
 export class D3Course extends LitElement {
   static get properties() {
@@ -53,6 +53,7 @@ export class D3Course extends LitElement {
       }
     `;
   }
+
   goDraw() {
     const margin = { top:30, right: 30, bottom: 150, left: 30};
     const width= 800 - margin.left - margin.right;
@@ -65,8 +66,6 @@ export class D3Course extends LitElement {
     .append('g')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    console.log(`added svg to ${targetSelector}`);
-
     const xAxis = d3.scaleBand()
       .range([0, width])
       .padding(0.1);
@@ -74,8 +73,7 @@ export class D3Course extends LitElement {
     const yAxis = d3.scaleLinear()
       .range([height, 0]);
 
-    d3
-    .csv('sales.csv', (d) => {
+    d3.csv('sales.csv', (d) => {
       d.sales = +d.sales; // Translate string into integer
       return d;
     })
@@ -97,10 +95,28 @@ export class D3Course extends LitElement {
       .attr('dy', '.35em')
       .attr('transform', 'rotate(90)')
       .attr('text-anchor', 'start');
+
+      this.createBars(svg, csvData, xAxis, yAxis, height);
+
     })
     .catch((error) => {
       throw error;
     });
+  }
+  createBars(svg, csvData, xAxis, yAxis, height) {
+      const bar = svg.selectAll('.bar-group')
+      .data(csvData)
+      .enter()
+      .append('g')
+      .attr('class', 'bar-group');
+
+      bar.append('rect')
+      .attr('class', 'bar')
+      .attr('x', d => xAxis(d.flavors))
+      .attr('y', d => yAxis(d.sales))
+      .attr('width', xAxis.bandwidth())
+      .attr('height', d => height - yAxis(d.sales))
+      .style('fill', 'steelblue');
   }
 
   render() {
