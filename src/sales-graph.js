@@ -10,6 +10,9 @@ export class SalesGraph extends LitElement {
       margin: {type: Object},
       width: {type: Number},
       height: {type: Number},
+      xAxis: {type: Object},
+      yAxis: {type: Object},
+      svg: {type: Object}
     }
   }
 
@@ -19,6 +22,12 @@ export class SalesGraph extends LitElement {
     this.width= 800 - this.margin.left - this.margin.right;
     this.height= 800 - this.margin.top - this.margin.bottom;
     const csvDataFile = 'sales.csv';
+    this.xAxis = d3.scaleBand()
+      .range([0, this.width])
+      .padding(0.1);
+
+    this.yAxis = d3.scaleLinear()
+      .range([this.height, 0]);
 
     d3.csv(csvDataFile, (d) => {
       d.sales = +d.sales; // Translate string into integer
@@ -55,40 +64,34 @@ export class SalesGraph extends LitElement {
     console.log(`Found drawArea: ${JSON.stringify(element)}`);
 
 
-    const svg = d3.select(element).append('svg')
+    this.svg = d3.select(element).append('svg')
     .attr('width', this.width + this.margin.left + this.margin.right)
     .attr('height', this.height + this.margin.top + this.margin.bottom)
     .append('g')
     .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
-    const xAxis = d3.scaleBand()
-      .range([0, this.width])
-      .padding(0.1);
-
-    const yAxis = d3.scaleLinear()
-      .range([this.height, 0]);
 
 
       const yAxisMaxValue = d3.max(this.csvData, data => data.sales);
 
-      xAxis.domain(this.csvData.map(data => data.flavors));
-      yAxis.domain([0, yAxisMaxValue])
+      this.xAxis.domain(this.csvData.map(data => data.flavors));
+      this.yAxis.domain([0, yAxisMaxValue])
       .nice(); // To end the axis with the max number nicely.
 
-      svg.append('g')
-      .call(d3.axisLeft(yAxis));
+      this.svg.append('g')
+        .call(d3.axisLeft(this.yAxis));
 
-      svg.append('g')
-      .attr('transform', `translate(0, ${this.height})`)
-      .call(d3.axisBottom(xAxis))
-      .selectAll('text')
-      .attr('x', xAxis.bandwidth() / 2)
-      .attr('y', 0)
-      .attr('dy', '.35em')
-      .attr('transform', 'rotate(90)')
-      .attr('text-anchor', 'start');
+      this.svg.append('g')
+        .attr('transform', `translate(0, ${this.height})`)
+        .call(d3.axisBottom(this.xAxis))
+        .selectAll('text')
+        .attr('x', this.xAxis.bandwidth() / 2)
+        .attr('y', 0)
+        .attr('dy', '.35em')
+        .attr('transform', 'rotate(90)')
+        .attr('text-anchor', 'start');
 
-      this.createBars(svg, this.csvData, xAxis, yAxis, this.height);
+      this.createBars(this.csvData);
 
      const rangeSlider = this.shadowRoot.querySelector(salesRangeSelector);
       rangeSlider.min = 0;
@@ -97,42 +100,56 @@ export class SalesGraph extends LitElement {
   }
 
   salesRangeChanged(event) {
-     const rangeSlider = this.shadowRoot.querySelector(salesRangeSelector);
-        const filteredData = this.csvData.filter(d => d.sales >= rangeSlider.value);
-      console.log(`event=${JSON.stringify(event)}`);
-        console.log(`filteredData=${filteredData}`);
+    const rangeSlider = this.shadowRoot.querySelector(salesRangeSelector);
+    const filteredData = this.csvData.filter(d => d.sales >= rangeSlider.value);
+    console.log(`filteredData=${JSON.stringify(filteredData)}`);
+    this.createBars(filteredData);
   }
 
-  createBars(svg, csvData, xAxis, yAxis, height) {
-      const bar = svg.selectAll('.bar-group')
-      .data(csvData)
-      .enter()
-      .append('g')
-      .attr('class', 'bar-group');
+  createBars(csvData) {
+  this.svg.selectAll('.bar-group')
+      .data(csvData, d => d.flavors)
+      .join(
+        enter => {
+              const bar = enter.append('g')
+              .attr('class', 'bar-group')
+              .style('opacity', 1);
 
-      bar.append('rect')
-      .attr('class', 'bar')
-      .attr('x', d => xAxis(d.flavors))
-      .attr('y', d => yAxis(0))
-      .attr('width', xAxis.bandwidth())
-      .attr('height', 0)
-      .style('fill', 'steelblue')
-      .transition()
-      .duration(750)
-      .attr('y', d => yAxis(d.sales)) // Final y-position
-      .attr('height', d=> this.height - yAxis(d.sales));
+              bar.append('rect')
+              .attr('class', 'bar')
+              .attr('x', d => this.xAxis(d.flavors))
+              .attr('y', d => this.yAxis(0))
+              .attr('width', this.xAxis.bandwidth())
+              .attr('height', 0)
+              .style('fill', 'steelblue')
+              .transition()
+              .duration(750)
+              .attr('y', d => this.yAxis(d.sales)) // Final y-position
+              .attr('height', d=> this.height - this.yAxis(d.sales));
 
-      bar.append('text')
-      .text(d => d.sales)
-      .attr('x', d => xAxis(d.flavors) + (xAxis.bandwidth()/2))
-      .attr('y', d => yAxis(d.sales) - 5)
-      .attr('font-family', 'sans-serif')
-      .attr('font-size', 10)
-      .attr('text-anchor', 'middle')
-      .attr('opacity', 0)
-      .transition()
-      .duration(500)
-      .style('opacity', 1);
+              bar.append('text')
+              .text(d => d.sales)
+              .attr('x', d => this.xAxis(d.flavors) + (this.xAxis.bandwidth()/2))
+              .attr('y', d => this.yAxis(d.sales) - 5)
+              .attr('font-family', 'sans-serif')
+              .attr('font-size', 10)
+              .attr('text-anchor', 'middle')
+              .attr('opacity', 0)
+              .transition()
+              .duration(500)
+              .style('opacity', 1);
+        },
+        update => {
+          update.transition()
+           .duration(750)
+            .style('opacity', 1)
+        },
+        exit => {
+          exit.transition()
+          .duration(750)
+          .style('opacity', 0.15)
+        }
+      )
   }
 }
 
