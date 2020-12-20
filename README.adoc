@@ -17,6 +17,7 @@ to make that easier.
 .To get started:
 . Install https://nodejs.org/[node] (which includes npm),
 and make sure that you have it available from your command line.
+    ** Note that this application was created using node v14.15.0 and npm 6.14.8. Other versions might work.
 . Clone this repository
 . From a command line, run:
     .. `npm install` to install all dependencies
@@ -25,6 +26,7 @@ and make sure that you have it available from your command line.
 
 Have look ad the _scripts_ section in package.json
 for more stuff that you can run using `npm run ...`.
+
 
 == References
 
