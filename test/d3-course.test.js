@@ -5,9 +5,7 @@ import '../src/d3-course.js';
 describe('D3Course', () => {
   let element;
   beforeEach(async () => {
-    element = await fixture(html`
-      <d3-course></d3-course>
-    `);
+    element = await fixture(html` <d3-course></d3-course> `);
   });
 
   it('renders a h1', () => {

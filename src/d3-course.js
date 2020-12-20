@@ -68,8 +68,6 @@ export class D3Course extends LitElement {
     `;
   }
 
-
-
   render() {
     const rendered = html`
       <main>

@@ -1,0 +1,41 @@
+= Lit application based on open-wc with d3 graph
+:numbered:
+:toc:
+
+== Introduction
+
+This application was initialized using `npm init @open-wc`.
+Then, instructions from Pluralsight course _Build your first data visualisation with D3_
+were used to build the D3 graph in a separate web component.
+
+This application was built using
+_web components_ using _LitElement_
+to make that easier.
+
+== Quickstart
+
+.To get started:
+. Install https://nodejs.org/[node] (which includes npm),
+and make sure that you have it available from your command line.
+. Clone this repository
+. From a command line, run:
+    .. `npm install` to install all dependencies
+    .. `npm run start` to run a local dev server
+. Load localhost:8000 in a browser
+
+Have look ad the _scripts_ section in package.json
+for more stuff that you can run using `npm run ...`.
+
+== References
+
+.Web components:
+* https://developer.mozilla.org/en-US/docs/Web/Web_Components
+* https://www.webcomponents.org/introduction
+* https://lit-element.polymer-project.org/
+* https://lit-html.polymer-project.org/
+
+.Graphics library:
+* https://d3js.org/
+
+.The document that you're now reading was created using
+* https://asciidoctor.org/
