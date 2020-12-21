@@ -1,8 +1,7 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html } from 'lit-element';
 import * as d3 from 'd3';
 
 const drawAreaSelector = '#drawArea';
-const svgSelector = drawAreaSelector + " svg";
 
 const salesRangeSelector = '#sales-range';
 
@@ -14,7 +13,7 @@ export class SalesGraph extends LitElement {
       height: { type: Number },
       xAxis: { type: Object },
       yAxis: { type: Object },
-      svg: { type: Object}
+      svg: { type: Object },
     };
   }
 
@@ -28,9 +27,9 @@ export class SalesGraph extends LitElement {
 
     this.yAxis = d3.scaleLinear().range([this.height, 0]);
 
-    d3.csv(csvDataFile, d => {
-      d.sales = +d.sales; // Translate string into integer
-      return d;
+    d3.csv(csvDataFile, origRow => {
+      // Translate sales value which is a string into an integer
+      return { ...origRow, sales: +origRow.sales };
     })
       .then(csvData => {
         this.csvData = csvData;
@@ -60,14 +59,11 @@ export class SalesGraph extends LitElement {
     `;
   }
 
-
   goDraw() {
     const element = this.shadowRoot.querySelector(drawAreaSelector);
     this.svg = d3
       .select(element)
-      .append('svg');
-
-    this.svg
+      .append('svg')
       .attr('width', this.width + this.margin.left + this.margin.right)
       .attr('height', this.height + this.margin.top + this.margin.bottom)
       .append('g')
@@ -99,7 +95,7 @@ export class SalesGraph extends LitElement {
     // onChange is via @change event handler
   }
 
-  salesRangeChanged(event) {
+  salesRangeChanged() {
     const rangeSlider = this.shadowRoot.querySelector(salesRangeSelector);
     const filteredData = this.csvData.filter(d => d.sales >= rangeSlider.value);
     console.log(`filteredData=${JSON.stringify(filteredData)}`);
@@ -121,7 +117,7 @@ export class SalesGraph extends LitElement {
             .append('rect')
             .attr('class', 'bar')
             .attr('x', d => this.xAxis(d.flavors))
-            .attr('y', d => this.yAxis(0))
+            .attr('y', () => this.yAxis(0))
             .attr('width', this.xAxis.bandwidth())
             .attr('height', 0)
             .style('fill', 'steelblue')
