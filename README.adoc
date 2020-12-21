@@ -24,20 +24,23 @@ and make sure that you have it available from your command line.
     .. `npm run start` to run a local dev server
 . Load localhost:8000 in a browser
 
-Have look ad the _scripts_ section in package.json
+Have look add the _scripts_ section in package.json
 for more stuff that you can run using `npm run ...`.
 
 
 == References
 
-.Web components:
-* https://developer.mozilla.org/en-US/docs/Web/Web_Components
-* https://www.webcomponents.org/introduction
-* https://lit-element.polymer-project.org/
-* https://lit-html.polymer-project.org/
+What are web components::
+    * https://developer.mozilla.org/en-US/docs/Web/Web_Components
+    * https://www.webcomponents.org/introduction
 
-.Graphics library:
-* https://d3js.org/
+Working with web components::
+    * Convenience stuff for web components: https://lit-element.polymer-project.org/
+    * Templating library: https://lit-html.polymer-project.org/
+    * Quickly setup a web components project: https://open-wc.org/
 
-.The document that you're now reading was created using
-* https://asciidoctor.org/
+Graphics library::
+    * https://d3js.org/
+
+The document that you're now reading was created using::
+    * https://asciidoctor.org/
